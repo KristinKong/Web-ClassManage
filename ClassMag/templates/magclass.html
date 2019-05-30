@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Manage_Class</title>
+    <!-- Bootstrap core CSS -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../static/css/dashboard.css" rel="stylesheet">
+    <link href="../static/css/signin.css" rel="stylesheet">
+    <script src="../static/js/jquery-3.1.1.min.js"></script>
+    <script src="../static/js/bootstrap.min.js"></script>
+    <script src="../static/js/magclass.js"></script>
+    <script src="../static/js/notice.js"></script>
+    <script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jquery.templates/beta1/jquery.tmpl.js"></script>
+</head>
+
+<body>
+<nav class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">find your class</a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+                <li><a href="/show_manager_home">管理员主页</a></li>
+                <li class="active"><a href="#">公告管理</a></li>
+                <li><a href="/show_manage_classmate">成员管理</a></li>
+                <li><a href="/manager_logout">退出</a> </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-4 col-md-3 sidebar">
+            <div class="row placeholder">
+                <label>班级信息</label>
+                <div class="pull-right action-buttons">
+                    <button type="button" onclick="AddClassShow()"><span class="glyphicon glyphicon-plus">添加</span></button>
+                </div>
+            </div>
+            <div class="row input-group">
+                <input type="text" class="form-control" id="search_class_key" placeholder="请输入班级名称">
+                <span class="input-group-btn">
+                    <button class="btn btn-primary" type="button" onclick="SearchClass()" id="btnSearchMemo"><span class="glyphicon glyphicon-search"></span></button>
+                </span>
+            </div>
+            <div class="nav nav-sidebar">
+               <div class="row">
+                    <div class="panel-body">
+                        <ul id="list_class" class="list-group">
+
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script id="list_Class_Temp" type="text/x-jQuery-tmpl">
+        <li class="list-group-item">
+            <div class="checkbox" >
+                <a class-id=${Id} onclick="GetNoticeFirst(this)"><label id="LabelClassTitle">${Title}</label></a>
+            </div>
+            <div class="pull-right action-buttons">
+                <a class-id=${Id} onclick="EditClass(this)" ><span class="glyphicon glyphicon-pencil"></span></a>
+                <a class-id=${Id} onclick="ConfirmDeleteClass(this)"><span class="glyphicon glyphicon-trash"></span></a>
+            </div>
+        </li>
+    </script>
+
+     <script id="list_Notice_Temp" type="text/x-jQuery-tmpl">
+        <li class="list-group-item">
+            <div class="checkbox">
+                <label>${Title}</label>
+                <label>${Date}</label>
+            </div>
+            <div class="pull-right action-buttons">
+                <a no-id=${Id} onclick="EditNotice(this)" ><span class="glyphicon glyphicon-pencil"></span></a>
+                <a no-id=${Id} onclick="ConfirmDeleteNotice(this)"><span class="glyphicon glyphicon-trash"></span></a>
+            </div>
+        </li>
+    </script>
+
+    <div class="col-sm-8 col-sm-offset-4 col-md-9 col-md-offset-3 main">
+        <div class="row placeholder" id="ShowClassTitle">
+            <h4>公告栏</h4>
+        </div>
+        <div class="input-group" style="max-width: 500px">
+            <input type="text" class="form-control" id="search_notice_key" placeholder="请输入公告标题">
+            <span class="input-group-btn" id="search_title">
+                <button class="btn btn-primary" type="button" onclick="SearchNotice()" ><span class="glyphicon glyphicon-search"></span></button>
+                <button class="btn btn-primary" type="button" onclick="AddNoticeShow()"><span class="glyphicon glyphicon-plus"></span></button>
+            </span>
+        </div>
+        <div class="row">
+            <div class="panel-body" style="max-width: 1000px">
+                <ul id="list_notice" class="list-group">
+
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="editClassDlg" tabindex="-1" role="dialog" aria-labelledby="editClassDlgLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+                </button>
+                <h4 class="modal-title" id="editClassDlgLabel">修改班级信息</h4>
+            </div>
+            <div class="modal-body">
+                <form role="form" class="form-signin">
+                    <div class="form-group">
+                        <label for="recipient-name" class="control-label">班级名称：</label>
+                        <input type="text" placeholder="年份+班级描述" class="form-control" id="editClassTitle">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                <button type="button" id="btnUpdateClass" class="btn btn-primary">更新</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="addClassDlg" tabindex="-1" role="dialog" aria-labelledby="addClassLabel" aria-hidden="true">
+    <div class="modal-dialog" style="max-width: 500px">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+                </button>
+                <h4 class="modal-title" id="addClassLabel">添加新班级</h4>
+            </div>
+            <div class="modal-body">
+                <form role="form" class="form-signin">
+                    <div class="form-group"class="form-signin">
+                        <label for="recipient-name" class="control-label">班级名称：</label>
+                        <input type="text" placeholder="年份+班级描述" class="form-control" id="addClassTitle">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                <button type="button" onclick="AddClass()" class="btn btn-primary">添加</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="deleteClassDlg" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header" style="text-align:center;">
+                <h4 class="modal-title" style="color:red;" id="deleteModalLabel"><b>您将永久删除该班级!!</b></h4>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" onclick="DeleteClass()">删除</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="editNoticeDlg" tabindex="-1" role="dialog" aria-labelledby="editNoticeLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+                </button>
+                <h4 class="modal-title" id="editNoticeLabel">更新班级公告</h4>
+            </div>
+            <div class="modal-body">
+                <form role="form" class="form-signin">
+                    <div class="form-group"class="form-signin">
+                        <label for="recipient-name" class="control-label">标题：</label>
+                        <input type="text" class="form-control" id="editNoticeTitle">
+                    </div>
+                    <div class="form-group">
+                        <label for="message-text" class="control-label">内容描述:</label>
+                        <textarea class="form-control" id="editNoticeDesc"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                <button type="button" onclick="UpdateNotice()" class="btn btn-primary">更新</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="addNoticeDlg" tabindex="-1" role="dialog" aria-labelledby="addNoticeLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+                </button>
+                <h4 class="modal-title" id="addNoticeLabel">添加新班级公告</h4>
+            </div>
+            <div class="modal-body">
+                <form role="form" class="form-signin">
+                    <div class="form-group"class="form-signin">
+                        <label for="recipient-name" class="control-label">标题：</label>
+                        <input type="text" class="form-control" id="addNoticeTitle">
+                    </div>
+                    <div class="form-group">
+                        <label for="message-text" class="control-label">内容描述:</label>
+                        <textarea class="form-control" id="addNoticeDesc"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                <button type="button" onclick="AddNotice()" class="btn btn-primary">添加</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="deleteNoticeDlg" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header" style="text-align:center;">
+                <h4 class="modal-title" style="color:red;" id="deleteModalLabel"><b>您将永久删除该公告!!</b></h4>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" onclick="DeleteNotice()">删除</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <footer>
+        <p class="pull-right"><a href="#">返回顶部</a></p>
+        <p align="center">&copy; 2017 Designed by SiyinKong, Inc. &middot; <a href="#">版权所有</a>
+    </footer>
+</div><!-- /.container -->
+</body>
+</html>

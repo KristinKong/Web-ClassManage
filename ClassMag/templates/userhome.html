@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>UserHome</title>
+    <!-- Bootstrap core CSS -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../static/css/dashboard.css" rel="stylesheet">
+    <link href="../static/css/signin.css" rel="stylesheet">
+    <script src="../static/js/jquery-3.1.1.min.js"></script>
+    <script src="../static/js/bootstrap.min.js"></script>
+    <script src="../static/js/memo.js"></script>
+    <script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jquery.templates/beta1/jquery.tmpl.js"></script>
+    <style>
+        .trash {
+            color: rgb(209, 91, 71);
+        }
+        .panel-body .checkbox {
+            display: inline-block;
+            margin: 0px;
+        }
+        .list-group {
+            margin-bottom: 0px;
+        }
+    </style>
+</head>
+
+<body>
+<nav class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">find your class</a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+                <li class="active"><a href="#">个人中心</a></li>
+                <li><a href="/show_class_notice">班级公告</a></li>
+                 <li><a href="/show_classmate">班级成员</a></li>
+                <li><a href="/user_logout">退出</a> </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-3 col-md-2 sidebar">
+            <div class="row placeholders">
+                <img src="../static/image/用户头像.jpg" width="200" height="200" class="img-responsive img-circle" alt="Generic placeholder thumbnail">
+                <span class="text-muted">上传头像</span>
+            </div>
+            <div class="row placeholder">
+                <label>个人信息</label>
+                <div class="pull-right action-buttons">
+                    <button onclick="EditUser()" ><span class="glyphicon glyphicon-pencil">编辑</span></button>
+                    <button id="btnEditUserPsw">修改密码</button>
+                </div>
+            </div>
+            <div class="nav nav-sidebar">
+                <div class="list-group-item" id="UName"></div>
+                <div class="list-group-item" id="USex"></div>
+                <div class="list-group-item" id="ULoc"></div>
+                <div class="list-group-item">
+                    <label>电子邮箱:</label>
+                    <div id="UEmail"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script id="list_memo_Temp" type="text/x-jQuery-tmpl">
+        <li class="list-group-item">
+            <div class="checkbox">
+                <label>${Title}</label>
+                <label>${Date}</label>
+            </div>
+            <div class="pull-right action-buttons">
+                <a data-id=${Id} onclick="EditMemo(this)" ><span class="glyphicon glyphicon-pencil"></span></a>
+                <a data-id=${Id} onclick="ConfirmDelete(this)"><span class="glyphicon glyphicon-trash"></span></a>
+            </div>
+        </li>
+    </script>
+
+    <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+        <h2 class="page-header" >备忘录</h2>
+        <div class="input-group" style="max-width: 500px">
+            <input type="text" class="form-control" id="search_key" placeholder="请输入备忘录标题">
+            <span class="input-group-btn" id="search_title">
+                <button class="btn btn-primary" type="button" onclick="SearchMemo()" id="btnSearchMemo"><span class="glyphicon glyphicon-search"></span></button>
+                <button class="btn btn-primary" type="button" onclick="AddMemoShow()" id="btnAddMemo"><span class="glyphicon glyphicon-plus"></span></button>
+            </span>
+        </div>
+        <div class="row">
+            <div class="panel-body" style="max-width: 1000px">
+                <ul id="list_memo" class="list-group">
+
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="editUserDlg" tabindex="-1" role="dialog" aria-labelledby="editUserDlgLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+                </button>
+                <h4 class="modal-title" id="editUserDlgLabel">修改个人信息</h4>
+            </div>
+            <div class="modal-body">
+                <form role="form" class="form-signin">
+                    <div class="form-group">
+                        <label for="recipient-name" class="control-label">姓名：</label>
+                        <input type="text" class="form-control" id="editName">
+                    </div>
+                    <div class="form-group">
+                        <label for="message-text" class="control-label">性别:</label>
+                        <select id="editSex">
+                            <option value="男">男</option>
+                            <option value="女">女</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="message-text" class="control-label">居住地:</label>
+                        <input type="text" class="form-control" id="editLoc">
+                    </div>
+                    <div class="form-group">
+                        <label for="message-text" class="control-label">电子邮箱:</label>
+                        <input type="email" class="form-control" id="editEmail" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                <button type="button" id="btnUpdateUser" class="btn btn-primary">更新</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+                </button>
+                <h4 class="modal-title" id="editModalLabel">更新备忘录</h4>
+            </div>
+            <div class="modal-body">
+                <form role="form" class="form-signin">
+                    <div class="form-group"class="form-signin">
+                        <label for="recipient-name" class="control-label">标题：</label>
+                        <input type="text" class="form-control" id="editTitle">
+                    </div>
+                    <div class="form-group">
+                        <label for="message-text" class="control-label">内容描述:</label>
+                        <textarea class="form-control" id="editDesc"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                <button type="button" id="btnUpdate" class="btn btn-primary">更新</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="addModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+                </button>
+                <h4 class="modal-title" id="editModalLabel">添加备忘录</h4>
+            </div>
+            <div class="modal-body">
+                <form role="form" class="form-signin">
+                    <div class="form-group"class="form-signin">
+                        <label for="recipient-name" class="control-label">标题：</label>
+                        <input type="text" class="form-control" id="addTitle">
+                    </div>
+                    <div class="form-group">
+                        <label for="message-text" class="control-label">内容描述:</label>
+                        <textarea class="form-control" id="addDesc"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                <button type="button" onclick="AddMemo()" class="btn btn-primary">添加</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+ <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header" style="text-align:center;">
+                        <h4 class="modal-title" style="color:red;" id="deleteModalLabel"><b>您将永久删除此条备忘录 !!</b></h4>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                        <button type="button" class="btn btn-primary" onclick="Delete()">删除</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+<div class="modal fade" id="editUserPswDlg" tabindex="-1" role="dialog" aria-labelledby="editUserPswDlgLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+                </button>
+                <h4 class="modal-title">修改密码</h4>
+            </div>
+            <div class="modal-body">
+                <form role="form" class="form-signin">
+                    <div class="form-group"class="form-signin">
+                        <label for="recipient-name" class="control-label">原密码：</label>
+                        <input type="password" class="form-control" id="editOrdUserPsw" >
+                    </div>
+                    <div class="form-group">
+                        <label for="message-text" class="control-label">新密码:</label>
+                        <input type="password" placeholder="不少于6位(字母+数字)" class="form-control" id="editNewUserPsw1"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="message-text" class="control-label">再次确认:</label>
+                        <input type="password" placeholder="不少于6位(字母+数字)"class="form-control" id="editNewUserPsw2"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                <button type="button" onclick="EditUserPsw()" class="btn btn-primary">修改</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="container">
+    <footer>
+        <p class="pull-right"><a href="#">返回顶部</a></p>
+        <p align="center">&copy; 2017 Designed by SiyinKong, Inc. &middot; <a href="#">版权所有</a>
+    </footer>
+</div><!-- /.container -->
+
+</body>
+</html>
